@@ -4,7 +4,7 @@
 
 import ComplexDouble._
 
-class Poly[ComplexT <: Complex[ComplexT]](val coeff: Array[ComplexT]) {
+class Poly[ComplexT <: Complex[ComplexT]](val coeff: Seq[ComplexT]) {
   require(coeff.length > 0)
 
   val zero = coeff(0).zero
@@ -18,6 +18,35 @@ class Poly[ComplexT <: Complex[ComplexT]](val coeff: Array[ComplexT]) {
       pow = pow*x
     }
     accum
+  }
+
+  def derivative: Poly[ComplexT] = {
+    var d = one
+    var dcoeff = coeff.reverse.tail.map { c =>
+      val dc = d*c
+      d += one
+      dc
+    }.reverse
+    new Poly(if(dcoeff.length == 0) Seq(zero) else dcoeff)
+  }
+
+  override def toString: String = {
+    val sb = new StringBuilder
+    var pow = coeff.length - 1
+    var first = true
+    coeff.foreach { c =>
+      if(c != zero) {
+        if(first) {
+          first = false
+        } else {
+          sb ++= " + "
+        }
+        sb ++= s"($c)"
+        if(pow != 0) sb ++= s".x^$pow"
+      }
+      pow -= 1
+    }
+    if(first) "0" else sb.toString
   }
 
 }
