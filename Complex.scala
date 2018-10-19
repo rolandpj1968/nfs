@@ -8,6 +8,11 @@ trait Complex[ComplexType] {
 
   def zero: ComplexType
   def one: ComplexType
+  def i: ComplexType
+  // For Durand-Kerner polynomial roots finding
+  def dkSeed: ComplexType // seed for Durand–Kerner polynomial root - normally 0.4 + 0.9i
+  def dkEpsilon: RealT
+  def dkLessThanEpsilon(v: ComplexType): Boolean
 
   def unary_+ : ComplexType
   def unary_- : ComplexType
@@ -18,6 +23,8 @@ trait Complex[ComplexType] {
   def -(c: ComplexType): ComplexType
   def *(c: ComplexType): ComplexType
   def /(c: ComplexType): ComplexType
+
+  def abs(v: RealT): RealT
 }
 
 case class ComplexDouble(re: Double, im: Double) extends Complex[ComplexDouble] with Ordered[ComplexDouble] {
@@ -30,6 +37,15 @@ case class ComplexDouble(re: Double, im: Double) extends Complex[ComplexDouble] 
 
   def zero = ComplexDouble.ZERO
   def one = ComplexDouble.ONE
+  def i = ComplexDouble.i
+  
+  // For Durand-Kerner polynomial roots finding
+  def dkSeed = ComplexDouble(0.4, 0.9)
+  def dkEpsilon = 1.0e-15
+  def dkLessThanEpsilon(v: ComplexDouble): Boolean = {
+      math.abs(v.re) < dkEpsilon &&
+      math.abs(v.im) < dkEpsilon
+  }
   
   // Unary operators
   def unary_+ = this
@@ -50,6 +66,8 @@ case class ComplexDouble(re: Double, im: Double) extends Complex[ComplexDouble] 
     val d = pow(c.re, 2) + pow(c.im, 2)
     new ComplexDouble((re * c.re + im * c.im) / d, (im * c.re - re * c.im) / d)
   }
+
+  def abs(v: Double) = math.abs(v)
   
   // String representation
   override def toString() = 
